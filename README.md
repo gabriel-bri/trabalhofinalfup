@@ -2,8 +2,8 @@
 
     Code by:
     Brena Rodrigues (@brena-cmd)
-    Gabriel Brito (@gabriel-bri)
     Caio Victor Pereira (@caiocvps)
+    Gabriel Brito (@gabriel-bri)
     Professor responsável: (@enyo-goncalves)
 
 
