@@ -1,20 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char nome_prof[50];
-char disciplina[50];
-
-char adc_prof[50];
 
 typedef struct professor{
     int matricula;
     char nome[50];
+    // mestrado, doutorado, graduação
+    char maior_titulacao[50];
+    //engenharia de software, rede de computadores.
+    char area_pesquisa[50];
 }Prof;
 
 typedef struct disciplina{
     int num_disc;
     char nome_disc[50];
+    int semestre;
+    int creditos;
 }Disciplina;
+
+typedef struct associado{
+    int mat_prof;
+    int num_disc;
+}Associado;
 
 void inserir_professores(){
     FILE *p = fopen("professor.txt", "a");
@@ -79,7 +86,7 @@ void remover_disciplinas(){
     int n;
 
     Disciplina disc;
-    Disciplina disciplinas = (Disciplina) malloc(sizeof(Disciplina));
+    Disciplina *disciplinas = (Disciplina*) malloc(sizeof(Disciplina));
 
     printf("Digite o numero da disciplina a ser removida.");
     scanf("%d", &n);
@@ -100,11 +107,65 @@ void remover_disciplinas(){
     fclose(dw);
 }
 void associar_diciplinas(){
+    
+    //criacao do arquivo de associacao do prof e da disc.
+    FILE *p_m = fopen("associacao.txt", "ab");
+
+    //leitura dos arquivos existentes.
+    FILE *pr = fopen("professor.txt", "rb");
+    FILE *dr = fopen("disciplina.txt", "rb");
+
+    //estrutura que contém todos os dados de professor e disciplina reunidos.
+    Associado associado;
+    Disciplina disc;
+    Prof profe;
+
+    int mat_prof, num_disciplina;
+
+    printf("\nDigite a matrícula do professor e o numero da disciplina que quer associar.\n");
+    scanf("%d %d", &mat_prof, &num_disciplina);
+
+    while(fread(&profe,sizeof(Prof), 1, pr)){
+        if(profe.matricula == mat_prof && disc.num_disc==num_disciplina){
+            associado.mat_prof = mat_prof;
+            associado.num_disc = num_disciplina;
+        }   
+    }
+
+     fwrite(&associado, sizeof(Associado), 1, p_m);
+
+    fclose(p_m);
+    fclose(pr);
+    fclose(dr);
 
 }
 void imprimir_associacoes(){
+    FILE *p_m = fopen("associacao.txt", "rb");
+    FILE *pr = fopen("professor.txt", "rb");
+    FILE *dr = fopen("disciplina.txt", "rb");
+
+    Disciplina disc;
+    Prof profe;
+    Associado associado;
+    Associado *associacao = (Associado *) malloc(sizeof(Associado));
+
+    int cont = 0;
+
+    while(fread(&associado,sizeof(Associado), 1, p_m)){
+            *(associacao+cont) = associado;
+            cont++;
+            associacao = (Associado *) realloc(associacao, (cont+1)*sizeof(Associado));
+        }
+    
+    for(int i=0; i<cont; i+2){
+       if((associacao+i)==profe.nome && (associacao+i+1)==disc.num_disc){
+           printf("\n matricula: %d nome do prof:%s \n n. disciplina: %d disciplina:", profe.matricula, profe.nome, disc.num_disc, disc.nome_disc);
+       }
+
+    }
 
 }
+
 int main(){
     FILE *f = fopen("cadastro_professores.txt","a");
 
