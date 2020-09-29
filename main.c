@@ -23,12 +23,20 @@ typedef struct associado{
     int num_disc;
 }Associado;
 
+/*void aloca(Associado **associacao){
+        *associacao= (Associado *) realloc(*associacao, sizeof(Associado)*strlen(*associacao)+2);
+        if(*associacao == NULL){
+            puts("** Memoria insuficiente**");
+            exit(0);
+        }
+    }*/
+
 void inserir_professores(){
-    FILE *p = fopen("professor.txt", "a");
+    FILE *p = fopen("professor.txt", "ab");
     int opc;
     Prof profe;
     do{
-        printf("Digite o numero, nome, maior titulação e area de pesquisa do professor\n");
+        printf("Digite a matricula, nome, maior titulação e area de pesquisa do professor\n");
         scanf(" %d", &profe.matricula);
         scanf(" %[^\n]", profe.nome);
         scanf(" %[^\n]", profe.maior_titulacao);
@@ -70,7 +78,7 @@ void remover_professores(){
     fclose(pw);
 }
 void inserir_disciplinas(){
-    FILE *d = fopen("disciplina.txt", "a");
+    FILE *d = fopen("disciplina.txt", "ab");
     Disciplina disc; 
     int opc;
 
@@ -89,7 +97,7 @@ void remover_disciplinas(){
     int n;
 
     Disciplina disc;
-    Disciplina *disciplinas = (Disciplina*) malloc(sizeof(Disciplina));
+    Disciplina *disciplinas =  malloc(sizeof(Disciplina));
 
     printf("Digite o numero da disciplina a ser removida.");
     scanf("%d", &n);
@@ -129,12 +137,15 @@ void associar_diciplinas(){
     scanf("%d %d", &mat_prof, &num_disciplina);
 
     while(fread(&profe,sizeof(Prof), 1, pr)){
-        if(profe.matricula == mat_prof && disc.num_disc==num_disciplina){
+        if(profe.matricula == mat_prof){
             associado.mat_prof = mat_prof;
-            associado.num_disc = num_disciplina;
         }   
     }
-
+    while(fread(&disc,sizeof(Disciplina), 1, dr)){
+        if(disc.num_disc==num_disciplina){
+             associado.num_disc = num_disciplina;
+        }
+    }
      fwrite(&associado, sizeof(Associado), 1, p_m);
 
     fclose(p_m);
@@ -151,37 +162,36 @@ void imprimir_associacoes(){
     Prof profe;
     Associado associado;
     Associado *associacao = (Associado *) malloc(sizeof(Associado));
-    Prof *profs = (Prof *) malloc(sizeof(Prof));
+
     int cont = 0;
     int conte = 0;
     while(fread(&associado,sizeof(Associado), 1, p_m)){
             *(associacao+cont) = associado;
             cont++;
             associacao = (Associado *) realloc(associacao, (cont+1)*sizeof(Associado));
+            //aloca(associacao);
         }
-        char nome_prof[50];
-        char nome_disc[50];
-        strcpy(nome_prof, profe.nome);
-        strcpy(nome_disc, disc.nome_disc);
-    fread(&profe,sizeof(Prof), 1, pr);
-    fread(&disc,sizeof(Disciplina), 1, dr);
+        
+    
     do {
-        if(profe.matricula == associacao->mat_prof && disc.num_disc == associacao->num_disc)
-        printf("Nome: %s \n", profe.nome);
+        int temp;
+        fscanf(p_m, "%d", &temp);
+        fread(&associado,sizeof(Associado), 1, p_m); printf("Nome: %s \n", profe.nome);
         printf("Disciplina: %s \n", disc.nome_disc);
         
-        fread(&associado,sizeof(Associado), 1, p_m);
+        
     } while (!feof(p_m)); // enquanto não chegar ao final do arquivo
 
+    
+    
+    free(associacao);
     fclose(pr);
+    fclose(p_m);
+    fclose(dr);
 }
-
-            /**/
 int main(){
-    FILE *f = fopen("cadastro_professores.txt","a");
 
     int opc;
-    int n=1;
     do{
         printf("Selecione a opcao desejada:\n1- Inserir professor\n 2-Remover professor\n 3- Inserir disciplina\n 4- Remover disciplina\n 5-Associar professor a disciplina \n 6- Imprimir\n 7- Encerrar\n");
         scanf("%d", &opc);
@@ -189,7 +199,6 @@ int main(){
         switch(opc){
             case 1:
                 inserir_professores();
-                n++;
                 break;
             case 2:
                 remover_professores();
