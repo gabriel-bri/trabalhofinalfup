@@ -11,8 +11,8 @@ Traballho de conclusão da disciplina de FUP do professor Enyo Gonçalves.
 
 # Acompanhamento 1
     - [x] Implementação do menu de opções. 
-    - [ ] Tipo de dados.
-    - [ ] Vetor dinâmico.
+    - [x] Tipo de dados.
+    - [x] Vetor dinâmico.
 
    
  # Acompanhamento 2
