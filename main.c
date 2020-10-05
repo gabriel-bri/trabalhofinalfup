@@ -1,7 +1,9 @@
+//Faz a chamadas da bibliotecas utilizadas no projeto.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+//Definição das structs
 typedef struct professor{
     int matricula;
     char nome[50];
@@ -190,17 +192,21 @@ void imprimir_associacoes(){
     fclose(dr);
 }
 int main(){
-
+    //Variável responsável por armazenar a opção do usuário
     int opc;
     do{
+        //Cria o menu de opção e ler o valor
         printf("Selecione a opcao desejada:\n1- Inserir professor\n 2-Remover professor\n 3- Inserir disciplina\n 4- Remover disciplina\n 5-Associar professor a disciplina \n 6- Imprimir\n 7- Encerrar\n");
         scanf("%d", &opc);
         
+        //Verifica qual opção foi passada pelo usuário e verifica dentro de um switch
         switch(opc){
             case 1:
+                //Chamada a função de inserir professores
                 inserir_professores();
                 break;
             case 2:
+                //Chamada a função de remover professores
                 remover_professores();
                 break;
             case 3:
@@ -216,10 +222,12 @@ int main(){
                 imprimir_associacoes();
                 break;
             case 7:
+                //Encerra o programa
                 printf("Encerrando");
                 break;
             default:
-                printf("Opcao invalida!");
+                //Cai aqui caso o usuário digite algum valor inválido
+                printf("Opcao invalida!\n");
         }
         
     }while(opc!=7);
