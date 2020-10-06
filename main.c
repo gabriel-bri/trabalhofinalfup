@@ -1,9 +1,9 @@
-//Faz a chamadas da bibliotecas utilizadas no projeto.
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 #include <string.h>
+#include <locale.h>
 
-//Definição das structs
 typedef struct professor{
     int matricula;
     char nome[50];
@@ -102,7 +102,7 @@ void remover_disciplinas(){
     Disciplina *disciplinas =  malloc(sizeof(Disciplina));
 
     printf("Digite o numero da disciplina a ser removida.");
-    scanf("%d", &n);
+    scanf(" %d", &n);
 
     while(fread(&disc,sizeof(Disciplina), 1, d)){
         if(disc.num_disc != n){
@@ -123,90 +123,93 @@ void associar_diciplinas(){
     
     //criacao do arquivo de associacao do prof e da disc.
     FILE *p_m = fopen("associacao.txt", "ab");
-
-    //leitura dos arquivos existentes.
-    FILE *pr = fopen("professor.txt", "rb");
-    FILE *dr = fopen("disciplina.txt", "rb");
-
+    FILE *d = fopen("disciplina.txt", "rb");
+    FILE *p = fopen("professor.txt", "rb");
     //estrutura que contém todos os dados de professor e disciplina reunidos.
     Associado associado;
-    Disciplina disc;
     Prof profe;
-
-    int mat_prof, num_disciplina;
-
-    printf("\nDigite a matricula do professor e o numero da disciplina que quer associar.\n");
-    scanf("%d %d", &mat_prof, &num_disciplina);
-
-    while(fread(&profe,sizeof(Prof), 1, pr)){
-        if(profe.matricula == mat_prof){
-            associado.mat_prof = mat_prof;
-        }   
-    }
-    while(fread(&disc,sizeof(Disciplina), 1, dr)){
-        if(disc.num_disc==num_disciplina){
-             associado.num_disc = num_disciplina;
+    Disciplina disc;
+    
+    int mat_temp;
+    int disc_temp;
+    int cont1=0;
+    int cont2=0;
+    
+    //while(cont1==0 || cont2==0)
+        printf("\nDigite a matricula do professor e o numero da disciplina que quer associar.\n");
+        scanf(" %d %d", &associado.mat_prof, &associado.num_disc);
+/*
+        //verificacao se existe o professor e a disciplina registrado.
+        while(fread(&profe, sizeof(Prof), 1, p)){
+            if(mat_temp==profe.matricula) cont1++;
         }
-    }
-     fwrite(&associado, sizeof(Associado), 1, p_m);
+        if(cont1==0) printf("professor nao encontrado!\n");
+        else printf("professor encontrado.");
 
+        while(fread(&disc, sizeof(Disciplina), 1, d)){
+            if(disc_temp==disc.num_disc) cont2++;
+        }
+        if(cont2==0) printf("disciplina nao encontrada!\n");
+        else printf("disciplina encontrada.");
+        }
+ */   
+
+    fwrite(&associado, sizeof(Associado), 1, p_m);
+    
     fclose(p_m);
-    fclose(pr);
-    fclose(dr);
+    fclose(p);
+    fclose(d);
 
 }
 void imprimir_associacoes(){
     FILE *p_m = fopen("associacao.txt", "rb");
-    FILE *pr = fopen("professor.txt", "rb");
-    FILE *dr = fopen("disciplina.txt", "rb");
+
+    Associado associado;
+
+    while(fread(&associado, sizeof(Associado), 1, p_m) == 1){
+            printf("Prof: %d -", associado.mat_prof);
+            printf(" Disc: %d \n", associado.num_disc);
+        }
+    
+    fclose(p_m);
+}
+
+void imprimir_professores(){
+    FILE *p = fopen("professor.txt", "rb");
+
+    Prof profe;
+
+    while(fread(&profe, sizeof(Prof), 1, p) == 1){
+            printf("Prof: %s -", profe.nome);
+            printf(" mat: %d \n", profe.matricula);
+        }
+    
+    fclose(p);
+}
+void imprimir_disciplinas(){
+    FILE *d = fopen("disciplina.txt", "rb");
 
     Disciplina disc;
-    Prof profe;
-    Associado associado;
-    Associado *associacao = (Associado *) malloc(sizeof(Associado));
 
-    int cont = 0;
-    int conte = 0;
-    while(fread(&associado,sizeof(Associado), 1, p_m)){
-            *(associacao+cont) = associado;
-            cont++;
-            associacao = (Associado *) realloc(associacao, (cont+1)*sizeof(Associado));
-            //aloca(associacao);
+    while(fread(&disc, sizeof(Disciplina), 1, d) == 1){
+            printf("nome: %s -", disc.nome_disc);
+            printf("numero: %d \n", disc.num_disc);
         }
-        
     
-    do {
-        int temp;
-        fscanf(p_m, "%d", &temp);
-        fread(&associado,sizeof(Associado), 1, p_m); printf("Nome: %s \n", profe.nome);
-        printf("Disciplina: %s \n", disc.nome_disc);
-        
-        
-    } while (!feof(p_m)); // enquanto não chegar ao final do arquivo
-
-    
-    
-    free(associacao);
-    fclose(pr);
-    fclose(p_m);
-    fclose(dr);
+    fclose(d);
 }
 int main(){
-    //Variável responsável por armazenar a opção do usuário
+    setlocale(LC_ALL,"Portuguese");
     int opc;
     do{
-        //Cria o menu de opção e ler o valor
-        printf("Selecione a opcao desejada:\n1- Inserir professor\n 2-Remover professor\n 3- Inserir disciplina\n 4- Remover disciplina\n 5-Associar professor a disciplina \n 6- Imprimir\n 7- Encerrar\n");
+        printf("Selecione a opcao desejada:\n1- Inserir professor\n 2-Remover professor\n 3- Inserir disciplina\n 4- Remover disciplina\n 5-Associar professor a disciplina \n 6- Imprimir associacao \n 7- imprimir professor \n 8-imprimir disciplina \n 9- sair\n");
         scanf("%d", &opc);
         
-        //Verifica qual opção foi passada pelo usuário e verifica dentro de um switch
         switch(opc){
             case 1:
-                //Chamada a função de inserir professores
                 inserir_professores();
                 break;
             case 2:
-                //Chamada a função de remover professores
                 remover_professores();
                 break;
             case 3:
@@ -222,15 +225,19 @@ int main(){
                 imprimir_associacoes();
                 break;
             case 7:
-                //Encerra o programa
+                imprimir_professores();
+                break;
+            case 8:
+                imprimir_disciplinas();
+                break;
+            case 9:
                 printf("Encerrando");
                 break;
             default:
-                //Cai aqui caso o usuário digite algum valor inválido
-                printf("Opcao invalida!\n");
+                printf("Opcao invalida!");
         }
         
-    }while(opc!=7);
+    }while(opc!=9);
       
     return(0);
 }
