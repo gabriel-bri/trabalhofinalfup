@@ -54,9 +54,12 @@ void inserir_professores(){
 }
 void remover_professores(){
     FILE *pr = fopen("professor.txt","rb");
+    FILE *p_m = fopen("associacao.txt","rb");
     int opc;
     int cont=0;
     int mat;
+    Associado associado;
+    Associado *assoc = malloc(sizeof(Associado));
     Prof profe;
     Prof *profs = (Prof *) malloc(sizeof(Prof));
     
@@ -78,6 +81,24 @@ void remover_professores(){
        fwrite(profs+i, sizeof(Prof), 1, pw); 
     }
     fclose(pw);
+
+    cont = 0;
+    while(fread(&associado,sizeof(Associado), 1, p_m)){
+        if(associado.mat_prof!=mat){
+            *(assoc+cont) = associado;
+            cont++;
+            assoc = (Associado *) realloc(assoc, (cont+1)*sizeof(Associado));
+        }
+    }
+    fclose(p_m);
+
+    FILE *p_mw = fopen("associacao.txt", "wb");
+    for(int i=0; i<cont; i++){
+       fwrite(assoc+i, sizeof(Associado), 1, p_mw); 
+    }
+    fclose(p_mw);
+
+    
 }
 void inserir_disciplinas(){
     FILE *d = fopen("disciplina.txt", "ab");
@@ -95,9 +116,12 @@ void inserir_disciplinas(){
 }
 void remover_disciplinas(){
     FILE *d = fopen("disciplina.txt", "rb");
+    FILE *p_m = fopen("associacao.txt", "rb");
     int cont = 0;
     int n;
 
+    Associado associado;
+    Associado *assoc = malloc(sizeof(Associado));
     Disciplina disc;
     Disciplina *disciplinas =  malloc(sizeof(Disciplina));
 
@@ -118,6 +142,22 @@ void remover_disciplinas(){
        fwrite(disciplinas+i, sizeof(Disciplina), 1, dw); 
     }
     fclose(dw);
+
+    cont = 0;
+    while(fread(&associado,sizeof(Associado), 1, p_m)){
+        if(associado.num_disc!=n){
+            *(assoc+cont) = associado;
+            cont++;
+            assoc = (Associado *) realloc(assoc, (cont+1)*sizeof(Associado));
+        }
+    }
+    fclose(p_m);
+
+    FILE *p_mw = fopen("associacao.txt", "wb");
+    for(int i=0; i<cont; i++){
+       fwrite(assoc+i, sizeof(Associado), 1, dw); 
+    }
+    fclose(p_mw);
 }
 void associar_diciplinas(){
     
@@ -130,29 +170,27 @@ void associar_diciplinas(){
     Prof profe;
     Disciplina disc;
     
-    int mat_temp;
-    int disc_temp;
     int cont1=0;
     int cont2=0;
     
-    //while(cont1==0 || cont2==0)
+    //while(cont1==0 || cont2==0){
         printf("\nDigite a matricula do professor e o numero da disciplina que quer associar.\n");
         scanf(" %d %d", &associado.mat_prof, &associado.num_disc);
-/*
-        //verificacao se existe o professor e a disciplina registrado.
-        while(fread(&profe, sizeof(Prof), 1, p)){
-            if(mat_temp==profe.matricula) cont1++;
-        }
-        if(cont1==0) printf("professor nao encontrado!\n");
-        else printf("professor encontrado.");
 
+        /*while(fread(&profe, sizeof(Prof), 1, p)){
+            if(associado.mat_prof==profe.matricula) cont1++;
+        }
+        if(cont1==0){
+            printf("Professor nao encontrado!\n");
+        } 
         while(fread(&disc, sizeof(Disciplina), 1, d)){
-            if(disc_temp==disc.num_disc) cont2++;
+            if(associado.num_disc==disc.num_disc) cont2++;
         }
-        if(cont2==0) printf("disciplina nao encontrada!\n");
-        else printf("disciplina encontrada.");
-        }
- */   
+        if(cont2==0){
+            printf("Disciplina nao encontrada!");
+        } 
+    }*/
+         
 
     fwrite(&associado, sizeof(Associado), 1, p_m);
     
@@ -161,43 +199,86 @@ void associar_diciplinas(){
     fclose(d);
 
 }
+
+int tamanho_arq(const char* nome_arq){
+    FILE *f = fopen(nome_arq, "rb");
+
+    if(f == NULL)
+        return 0;
+
+    fseek(f, 0, SEEK_END);
+    int tam = ftell(f);
+    fclose(f);
+
+    return tam;
+}
+
 void imprimir_associacoes(){
     FILE *p_m = fopen("associacao.txt", "rb");
+    FILE *p = fopen("professor.txt", "rb");
+    FILE *d = fopen("disciplina.txt", "rb");
 
     Associado associado;
-
-    while(fread(&associado, sizeof(Associado), 1, p_m) == 1){
-            printf("Prof: %d -", associado.mat_prof);
-            printf(" Disc: %d \n", associado.num_disc);
-        }
+    Prof profe;
+    Disciplina disc;
     
+    if(tamanho_arq("associacao.txt") == 0) 
+        printf("O arquivo esta vazio.");
+    else{
+        printf("----------------------------------------------\n");
+        printf("Associacoes de professores\n");
+        printf("----------------------------------------------\n");
+        
+        while(fread(&associado, sizeof(Associado), 1, p_m) == 1){
+        
+            printf("Matricula do professor: %d - ", associado.mat_prof);
+
+            printf("Disciplina: %d \n", associado.num_disc);
+                        
+        }
+    }
     fclose(p_m);
+    fclose(p);
+    fclose(d);
 }
 
 void imprimir_professores(){
     FILE *p = fopen("professor.txt", "rb");
 
     Prof profe;
-
-    while(fread(&profe, sizeof(Prof), 1, p) == 1){
+    if(tamanho_arq("professor.txt") == 0) 
+        printf("O arquivo esta vazio.");
+    else{
+        printf("----------------------------------------------\n");
+        printf("Registro de professores\n");
+        printf("----------------------------------------------\n");
+        while(fread(&profe, sizeof(Prof), 1, p) == 1){
             printf("Prof: %s -", profe.nome);
             printf(" mat: %d \n", profe.matricula);
         }
-    
+    }
     fclose(p);
 }
+
 void imprimir_disciplinas(){
     FILE *d = fopen("disciplina.txt", "rb");
-
     Disciplina disc;
 
-    while(fread(&disc, sizeof(Disciplina), 1, d) == 1){
+    if(tamanho_arq("disciplina.txt") == 0) 
+        printf("O arquivo esta vazio.");
+    else{
+        printf("----------------------------------------------\n");
+        printf("Registro de disciplinas\n");
+        printf("----------------------------------------------\n");
+        while(fread(&disc, sizeof(Disciplina), 1, d) == 1){
             printf("nome: %s -", disc.nome_disc);
             printf("numero: %d \n", disc.num_disc);
         }
-    
+    }
+   
     fclose(d);
 }
+
 int main(){
     setlocale(LC_ALL,"Portuguese");
     int opc;
