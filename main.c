@@ -103,14 +103,14 @@ void remover_professores(){
 void inserir_disciplinas(){
     FILE *d = fopen("disciplina.txt", "ab");
     Disciplina disc; 
-    int opc;
-
-    printf("Digite o numero, nome, semestre e creditos da disciplina\n");
-    scanf(" %d", &disc.num_disc);
-    scanf(" %[^\n]", disc.nome_disc);
-    scanf(" %d", &disc.semestre);
-    scanf(" %d", &disc.creditos);
-     fwrite(&disc, sizeof(Disciplina), 1, d);
+    
+        printf("Digite o numero, nome, semestre e creditos da disciplina\n");
+        scanf(" %d", &disc.num_disc);
+        scanf(" %[^\n]", disc.nome_disc);
+        scanf(" %d", &disc.semestre);
+        scanf(" %d", &disc.creditos);
+        
+    fwrite(&disc, sizeof(Disciplina), 1, d);
 
     fclose(d);
 }
@@ -163,8 +163,6 @@ void associar_diciplinas(){
     
     //criacao do arquivo de associacao do prof e da disc.
     FILE *p_m = fopen("associacao.txt", "ab");
-    FILE *d = fopen("disciplina.txt", "rb");
-    FILE *p = fopen("professor.txt", "rb");
     //estrutura que contém todos os dados de professor e disciplina reunidos.
     Associado associado;
     Prof profe;
@@ -173,11 +171,17 @@ void associar_diciplinas(){
     int cont1=0;
     int cont2=0;
     
-    //while(cont1==0 || cont2==0){
+    while(cont1==0 || cont2==0){
+        FILE *p = fopen("professor.txt", "rb");
+        FILE *d = fopen("disciplina.txt", "rb");
+
+        cont1=0;
+        cont2=0;
+
         printf("\nDigite a matricula do professor e o numero da disciplina que quer associar.\n");
         scanf(" %d %d", &associado.mat_prof, &associado.num_disc);
 
-        /*while(fread(&profe, sizeof(Prof), 1, p)){
+        while(fread(&profe, sizeof(Prof), 1, p)){
             if(associado.mat_prof==profe.matricula) cont1++;
         }
         if(cont1==0){
@@ -189,14 +193,15 @@ void associar_diciplinas(){
         if(cont2==0){
             printf("Disciplina nao encontrada!");
         } 
-    }*/
+        fclose(p);
+        fclose(d);
+    }
          
 
     fwrite(&associado, sizeof(Associado), 1, p_m);
     
     fclose(p_m);
-    fclose(p);
-    fclose(d);
+    
 
 }
 
@@ -215,8 +220,7 @@ int tamanho_arq(const char* nome_arq){
 
 void imprimir_associacoes(){
     FILE *p_m = fopen("associacao.txt", "rb");
-    FILE *p = fopen("professor.txt", "rb");
-    FILE *d = fopen("disciplina.txt", "rb");
+    
 
     Associado associado;
     Prof profe;
@@ -228,18 +232,30 @@ void imprimir_associacoes(){
         printf("----------------------------------------------\n");
         printf("Associacoes de professores\n");
         printf("----------------------------------------------\n");
-        
+        printf("Professor               Disciplina\n");
         while(fread(&associado, sizeof(Associado), 1, p_m) == 1){
-        
-            printf("Matricula do professor: %d - ", associado.mat_prof);
+            FILE *p = fopen("professor.txt", "rb");
+            FILE *d = fopen("disciplina.txt", "rb");
 
-            printf("Disciplina: %d \n", associado.num_disc);
-                        
+            printf("%d - ", associado.mat_prof);
+            while(fread(&profe, sizeof(Prof), 1, p) == 1){
+
+                if(associado.mat_prof==profe.matricula){
+                    printf("%s", profe.nome);
+                }
+            }
+            printf("               ");
+            printf("%d -", associado.num_disc);
+            while(fread(&disc, sizeof(Disciplina), 1, d) == 1){
+                if(associado.num_disc==disc.num_disc){
+                    printf("%s\n", disc.nome_disc);
+                }
+            }
+        fclose(p);
+        fclose(d);            
         }
     }
     fclose(p_m);
-    fclose(p);
-    fclose(d);
 }
 
 void imprimir_professores(){
@@ -252,9 +268,10 @@ void imprimir_professores(){
         printf("----------------------------------------------\n");
         printf("Registro de professores\n");
         printf("----------------------------------------------\n");
+        printf("Professor     Matricula\n");
         while(fread(&profe, sizeof(Prof), 1, p) == 1){
-            printf("Prof: %s -", profe.nome);
-            printf(" mat: %d \n", profe.matricula);
+            printf("%s -", profe.nome);
+            printf("     %d \n", profe.matricula);
         }
     }
     fclose(p);
