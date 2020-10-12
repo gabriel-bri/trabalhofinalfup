@@ -25,13 +25,6 @@ typedef struct associado{
     int num_disc;
 }Associado;
 
-/*void aloca(Associado **associacao){
-        *associacao= (Associado *) realloc(*associacao, sizeof(Associado)*strlen(*associacao)+2);
-        if(*associacao == NULL){
-            puts("** Memoria insuficiente**");
-            exit(0);
-        }
-    }*/
 
 void inserir_professores(){
     FILE *p = fopen("professor.txt", "ab");
